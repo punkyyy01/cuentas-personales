@@ -1,0 +1,19 @@
+{
+  "crons": [
+    {
+      "path": "/api/sync-emails",
+      "schedule": "0 5 * * *"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.fintoc.com https://wizard.fintoc.com; frame-src https://wizard.fintoc.com; connect-src 'self' https://api.fintoc.com https://wizard.fintoc.com https://*.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.fintoc.com; child-src https://wizard.fintoc.com; worker-src 'self' blob:;"
+        }
+      ]
+    }
+  ]
+}
