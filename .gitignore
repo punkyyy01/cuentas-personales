@@ -11,6 +11,9 @@ yarn-error.log*
 # Next.js
 .next/
 
+# Static export output
+out/
+
 # TypeScript
 *.tsbuildinfo
 

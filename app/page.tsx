@@ -236,6 +236,19 @@ export default function Home() {
               categoryMap={categoryMap}
               tagMap={tagMap}
             />
+
+            {visibleTxs.length === 0 && (
+              <div className="grid-empty" aria-live="polite">
+                <div className="grid-empty-title">
+                  {(monthTxs?.length ?? 0) === 0 ? 'Sin transacciones este mes' : 'Sin resultados'}
+                </div>
+                <div className="grid-empty-sub">
+                  {(monthTxs?.length ?? 0) === 0
+                    ? 'Presiona N o “Nueva” para crear la primera.'
+                    : 'Revisa la búsqueda o limpia filtros.'}
+                </div>
+              </div>
+            )}
           </div>
 
           <InsightsPanel
