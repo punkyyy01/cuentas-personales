@@ -1,22 +1,19 @@
 import type { MetadataRoute } from 'next';
 
+export const dynamic = 'force-static';
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'ExpenseTrack',
-    short_name: 'Cuentas',
-    description: 'App de gestión de gastos e ingresos',
+    name: 'Planilla',
+    short_name: 'Planilla',
+    description: 'Planilla de gastos personales',
     start_url: '/',
     display: 'standalone',
-    background_color: '#0f172a',
-    theme_color: '#0f172a',
-    orientation: 'portrait',
+    background_color: '#09090d',
+    theme_color: '#09090d',
     icons: [
-      {
-        src: '/icon',
-        sizes: '192x192',
-        type: 'image/png',
-        purpose: 'any',
-      },
+      { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
     ],
   };
 }
