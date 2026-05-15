@@ -1,75 +1,73 @@
-# ExpenseTrack
+# React + TypeScript + Vite
 
-ExpenseTrack es una aplicación diseñada para la gestión de gastos e ingresos, permitiendo a los usuarios conectar sus cuentas bancarias, establecer presupuestos y sincronizar transacciones de manera eficiente.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Características principales
+Currently, two official plugins are available:
 
-- **Gestión de cuentas**: Los usuarios pueden listar y crear cuentas bancarias.
-- **Presupuestos**: Establece límites de gasto mensuales por categoría.
-- **Integración con Fintoc**: Sincronización de movimientos bancarios mediante la API de Fintoc.
-- **Conexión con Google**: Sincronización de correos y tokens de Google.
-- **Webhooks**: Manejo de eventos para transacciones y presupuestos.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Requisitos del sistema
+## React Compiler
 
-- Node.js 16 o superior
-- Python 3.9 o superior
-- PostgreSQL 13 o superior
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Instalación
+## Expanding the ESLint configuration
 
-1. Clona el repositorio:
-   ```bash
-   git clone <URL_DEL_REPOSITORIO>
-   cd cuentas
-   ```
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-2. Instala las dependencias de Node.js:
-   ```bash
-   npm install
-   ```
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-3. Configura el entorno virtual de Python:
-   ```bash
-   python -m venv .venv
-   .\.venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-4. Configura las variables de entorno:
-   - Crea un archivo `.env` basado en `.env.example` y completa los valores necesarios.
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
 
-5. Ejecuta las migraciones de la base de datos:
-   ```bash
-   npm run migrate
-   ```
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-6. Inicia el servidor de desarrollo:
-   ```bash
-   npm run dev
-   ```
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-## Scripts disponibles
-
-- `npm run dev`: Inicia el servidor de desarrollo.
-- `npm run build`: Construye la aplicación para producción.
-- `npm run start`: Inicia la aplicación en modo producción.
-
-## Arquitectura
-
-- **Frontend**: Construido con Next.js y React.
-- **Backend**: API RESTful utilizando rutas de Next.js.
-- **Base de datos**: PostgreSQL con Supabase como cliente.
-- **Integraciones**: Fintoc para movimientos bancarios y Google OAuth para sincronización de correos.
-
-## Seguridad
-
-- **CSP**: Política de seguridad de contenido configurada en `vercel.json`.
-- **Tokens seguros**: Uso de cookies y encabezados para autenticación.
-
-## Migraciones
-
-Ejemplo de migraciones:
-
-- `2026-03-06_add_example_column_to_accounts.sql`: Agrega una columna de ejemplo a la tabla `accounts_cards`.
-- `2026-03-07_create_fintoc_links.sql`: Crea la tabla `fintoc_links` para almacenar tokens de enlace.
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
