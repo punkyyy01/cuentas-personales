@@ -71,6 +71,68 @@ export default function App() {
     return () => window.removeEventListener("keydown", handler);
   }, [handleForceSave, handleExport]);
 
+  // Prevent FortuneSheet from unmerging cells when Delete is pressed.
+  // FortuneSheet's own delete handler removes the entire celldata entry (including
+  // the `mc` property), which breaks merged cells visually. We intercept in the
+  // capture phase before FortuneSheet sees the event, manually clear only the
+  // cell value/formula/display via API (leaving mc intact), then stop propagation.
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key !== "Delete") return;
+
+      // Only act when NOT in cell edit mode (contenteditable) or any text input.
+      const active = document.activeElement as HTMLElement | null;
+      if (
+        active?.contentEditable === "true" ||
+        active?.tagName === "INPUT" ||
+        active?.tagName === "TEXTAREA"
+      ) return;
+
+      const wb = workbookRef.current;
+      if (!wb) return;
+
+      const selection = wb.getSelection();
+      if (!selection || selection.length === 0) return;
+
+      const sheets = wb.getAllSheets();
+      const activeSheet = sheets.find((s) => s.status === 1);
+      const mergeConfig = activeSheet?.config?.merge ?? {};
+      if (Object.keys(mergeConfig).length === 0) return; // no merges at all
+
+      // Check whether any selected cell is part of a merge (top-left anchor or interior cell).
+      let hasMerge = false;
+      outer: for (const sel of selection) {
+        for (let r = sel.row[0]; r <= sel.row[1]; r++) {
+          for (let c = sel.column[0]; c <= sel.column[1]; c++) {
+            if (mergeConfig[`${r}_${c}`]) { hasMerge = true; break outer; }
+            const entry = activeSheet?.celldata?.find((cd) => cd.r === r && cd.c === c);
+            if (entry?.v?.mc) { hasMerge = true; break outer; }
+          }
+        }
+      }
+      if (!hasMerge) return; // normal delete — let FortuneSheet handle it
+
+      // Stop FortuneSheet from processing this Delete (it would strip mc from cells).
+      e.stopImmediatePropagation();
+      e.preventDefault();
+
+      // Clear only value/display/formula; leave mc, bg, and all styles untouched.
+      for (const sel of selection) {
+        for (let r = sel.row[0]; r <= sel.row[1]; r++) {
+          for (let c = sel.column[0]; c <= sel.column[1]; c++) {
+            wb.setCellFormat(r, c, "v", null);
+            wb.setCellFormat(r, c, "m", null);
+            wb.setCellFormat(r, c, "f", null);
+          }
+        }
+      }
+    };
+
+    // Capture phase so we run before any FortuneSheet listener on child elements.
+    window.addEventListener("keydown", handler, { capture: true });
+    return () => window.removeEventListener("keydown", handler, { capture: true });
+  }, []); // stable: only uses refs
+
   if (!initialData) {
     return (
       <div
