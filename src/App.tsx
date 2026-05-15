@@ -14,6 +14,7 @@ type ModalState = "save-template" | "load-template" | null;
 export default function App() {
   const workbookRef = useRef<WorkbookInstance>(null);
   const sheetsRef = useRef<Sheet[]>([]);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const { initialData, saveStatus, onChange, forceSave } = useWorkbookPersistence();
   const { templates, save: saveTemplate, remove: deleteTemplate } = useTemplates();
   const [modal, setModal] = useState<ModalState>(null);
@@ -133,6 +134,24 @@ export default function App() {
     return () => window.removeEventListener("keydown", handler, { capture: true });
   }, []); // stable: only uses refs
 
+  // Shift + wheel → horizontal scroll via FortuneSheet's own scrollbar element.
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+
+    const handler = (e: WheelEvent) => {
+      if (!e.shiftKey) return;
+      const scrollbarX = el.querySelector<HTMLElement>(".luckysheet-scrollbar-x");
+      if (!scrollbarX) return;
+      e.preventDefault();
+      scrollbarX.scrollLeft += e.deltaY;
+    };
+
+    // passive:false is required to allow preventDefault() on wheel events.
+    el.addEventListener("wheel", handler, { passive: false });
+    return () => el.removeEventListener("wheel", handler);
+  }, []);
+
   if (!initialData) {
     return (
       <div
@@ -167,7 +186,7 @@ export default function App() {
         onLoadTemplate={() => setModal("load-template")}
       />
 
-      <div className="fortune-sheet-wrapper">
+      <div ref={wrapperRef} className="fortune-sheet-wrapper">
         <Workbook
           ref={workbookRef}
           data={initialData}
