@@ -32,11 +32,19 @@ button {
   cursor: pointer;
 }
 
-/* FortuneSheet: force black text on all editing surfaces (body inherits #e8e8e8) */
+/* FortuneSheet: force dark text on all light-background surfaces.
+   Body inherits #e8e8e8 which is unreadable on FortuneSheet's white/light backgrounds. */
+.fortune-container,
+.fortune-toolbar,
+.fortune-toolbar-combo-button,
+.fortune-toolbar-combo-text,
+.fortune-toolbar-select,
+.fortune-toolbar-select-option,
+.fortune-toolbar-subtext,
+.fortune-fx-input,
 .luckysheet-input-box-inner,
-.luckysheet-cell-input,
-.fortune-fx-input {
-  color: #000 !important;
+.luckysheet-cell-input {
+  color: #1a1a1a !important;
 }
 
 /* FortuneSheet wrapper — must fill remaining viewport below topbar */
