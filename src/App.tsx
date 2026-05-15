@@ -81,13 +81,14 @@ export default function App() {
     const handler = (e: KeyboardEvent) => {
       if (e.key !== "Delete") return;
 
-      // Only act when NOT in cell edit mode (contenteditable) or any text input.
+      // .luckysheet-input-box exists ONLY when a cell is actively being edited
+      // (the inline editor is open). The formula bar is always contenteditable,
+      // so checking activeElement.contentEditable would always return early — wrong.
+      if (document.querySelector(".luckysheet-input-box")) return;
+
+      // Ignore if focus is inside one of our own inputs (modal, etc.).
       const active = document.activeElement as HTMLElement | null;
-      if (
-        active?.contentEditable === "true" ||
-        active?.tagName === "INPUT" ||
-        active?.tagName === "TEXTAREA"
-      ) return;
+      if (active?.tagName === "INPUT" || active?.tagName === "TEXTAREA") return;
 
       const wb = workbookRef.current;
       if (!wb) return;
