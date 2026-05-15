@@ -134,22 +134,31 @@ export default function App() {
     return () => window.removeEventListener("keydown", handler, { capture: true });
   }, []); // stable: only uses refs
 
-  // Shift + wheel → horizontal scroll via FortuneSheet's own scrollbar element.
+  // Shift + wheel → horizontal scroll.
+  // Must register on window with capture:true so we run before FortuneSheet's
+  // internal wheel handler (which otherwise consumes the event first).
   useEffect(() => {
-    const el = wrapperRef.current;
-    if (!el) return;
-
     const handler = (e: WheelEvent) => {
       if (!e.shiftKey) return;
-      const scrollbarX = el.querySelector<HTMLElement>(".luckysheet-scrollbar-x");
+
+      // Only act when the pointer is inside the FortuneSheet area.
+      const wrapper = wrapperRef.current;
+      if (!wrapper || !wrapper.contains(e.target as Node)) return;
+
+      const scrollbarX = wrapper.querySelector<HTMLElement>(".luckysheet-scrollbar-x");
       if (!scrollbarX) return;
+
+      // Prevent browser default (page horizontal scroll) and FortuneSheet vertical scroll.
       e.preventDefault();
-      scrollbarX.scrollLeft += e.deltaY;
+      e.stopImmediatePropagation();
+
+      // Some OS/browsers already convert Shift+wheel to deltaX; handle both.
+      const delta = e.deltaY !== 0 ? e.deltaY : e.deltaX;
+      scrollbarX.scrollLeft += delta;
     };
 
-    // passive:false is required to allow preventDefault() on wheel events.
-    el.addEventListener("wheel", handler, { passive: false });
-    return () => el.removeEventListener("wheel", handler);
+    window.addEventListener("wheel", handler, { passive: false, capture: true });
+    return () => window.removeEventListener("wheel", handler, { capture: true });
   }, []);
 
   if (!initialData) {
